@@ -1,0 +1,74 @@
+﻿@model RetroCassetteVHS.Application.ViewModels.Cassette.NewCassetteVm
+
+@{
+    ViewData["Title"] = "AddCassette";
+}
+
+<h1>AddCassette</h1>
+
+<h4>NewCassetteVm</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddCassette">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="MovieTitle" class="control-label"></label>
+                <input asp-for="MovieTitle" class="form-control" />
+                <span asp-validation-for="MovieTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReleaseDate" class="control-label"></label>
+                <input asp-for="ReleaseDate" class="form-control" />
+                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieLength" class="control-label"></label>
+                <input asp-for="MovieLength" class="form-control" />
+                <span asp-validation-for="MovieLength" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DirectorFirstName" class="control-label"></label>
+                <input asp-for="DirectorFirstName" class="form-control" />
+                <span asp-validation-for="DirectorFirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DirectorLastName" class="control-label"></label>
+                <input asp-for="DirectorLastName" class="form-control" />
+                <span asp-validation-for="DirectorLastName" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Availability" /> @Html.DisplayNameFor(model => model.Availability)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Language" class="control-label"></label>
+                <input asp-for="Language" class="form-control" />
+                <span asp-validation-for="Language" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CassettePhoto" class="control-label"></label>
+                <input asp-for="CassettePhoto" class="form-control" />
+                <span asp-validation-for="CassettePhoto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
