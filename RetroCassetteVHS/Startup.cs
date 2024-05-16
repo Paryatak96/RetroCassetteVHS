@@ -31,6 +31,26 @@ namespace RetroCassetteVHS
             Configuration = configuration;
         }
 
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            string[] roleNames = { "Admin", "User" };
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await roleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    // Utwórz role i zapisz w bazie danych
+                    var roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+                    if (!roleResult.Succeeded)
+                    {
+                        // Obsługa błędów
+                    }
+                }
+            }
+        }
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -39,15 +59,18 @@ namespace RetroCassetteVHS
             services.AddDbContext<Context>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<Context>();
+
+
             services.AddControllersWithViews().AddFluentValidation(fv => fv.AutomaticValidationEnabled = false);
+
             services.AddRazorPages();
+
             services.AddApplication();
+
             services.AddInfrastructure();
+
             services.AddTransient<IValidator<NewCassetteVm>, NewCassetteValidation>();
-            //services.AddTransient<IEmailSender, SendEmail>();
-            //services.Configure<AuthMessageSenderOptions>(Configuration);
+
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -60,7 +83,7 @@ namespace RetroCassetteVHS
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -88,6 +111,8 @@ namespace RetroCassetteVHS
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+
+            CreateRoles(serviceProvider).GetAwaiter().GetResult();
         }
     }
 }

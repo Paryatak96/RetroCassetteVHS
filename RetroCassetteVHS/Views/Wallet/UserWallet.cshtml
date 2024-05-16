@@ -1,0 +1,13 @@
+﻿@model RetroCassetteVHS.Domain.Model.Wallet
+
+@{
+    ViewData["Title"] = "Portfel Użytkownika";
+}
+
+<p>Saldo: @Model.Balance.ToString("C")</p> <!-- Formatowanie jako waluta -->
+@if (User.IsInRole("Admin"))  // Tylko admin może edytować saldo
+{
+    <a href="@Url.Action("EditUserBalance", new { userId = Model.UserId })" class="btn btn-primary">Edytuj Saldo</a>
+}
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-default">Powrót do strony głównej</a>

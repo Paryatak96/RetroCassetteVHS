@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RetroCassetteVHS.Infrastructure;
 
@@ -11,9 +12,10 @@ using RetroCassetteVHS.Infrastructure;
 namespace RetroCassetteVHS.Infrastructure.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240426180602_AddWallet")]
+    partial class AddWallet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,39 +272,6 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                     b.ToTable("Cassettes");
                 });
 
-            modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Rental", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime?>("ActualReturnDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CassetteId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ExpectedReturnDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("RentalDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CassetteId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Rentals");
-                });
-
             modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Wallet", b =>
                 {
                     b.Property<int>("Id")
@@ -374,25 +343,6 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Rental", b =>
-                {
-                    b.HasOne("RetroCassetteVHS.Domain.Model.Cassette", "Cassette")
-                        .WithMany()
-                        .HasForeignKey("CassetteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cassette");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Wallet", b =>

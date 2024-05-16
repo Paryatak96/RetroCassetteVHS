@@ -12,6 +12,8 @@ namespace RetroCassetteVHS.Infrastructure
     public class Context : IdentityDbContext
     {
         public DbSet<Cassette> Cassettes { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
 
         public Context(DbContextOptions options) : base(options)
         {
@@ -20,6 +22,11 @@ namespace RetroCassetteVHS.Infrastructure
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Wallet>(entity =>
+            {
+                entity.Property(e => e.Balance).HasColumnType("decimal(18, 2)");
+            });
         }
     }
 }

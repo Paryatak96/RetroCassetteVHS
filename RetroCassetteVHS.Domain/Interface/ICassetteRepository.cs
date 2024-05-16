@@ -18,6 +18,5 @@ namespace RetroCassetteVHS.Domain.Interface
         Cassette GetCassette(int cassetteId);
 
         void UpdateCassette(Cassette cassette);
-
     }
 }

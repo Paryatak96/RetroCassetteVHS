@@ -19,10 +19,11 @@ namespace RetroCassetteVHS.Application.ViewModels.Cassette
         public string Description { get; set; }
         public string Language { get; set; }
         public string CassettePhoto { get; set; }
+        public DateTime? NextAvailableDate { get; set; }
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<RetroCassetteVHS.Domain.Model.Cassette, CassetteDetailsVm>();
+            profile.CreateMap<RetroCassetteVHS.Domain.Model.Cassette, CassetteDetailsVm>().ForMember(dest => dest.NextAvailableDate, opt => opt.Ignore());
         }
     }
 }

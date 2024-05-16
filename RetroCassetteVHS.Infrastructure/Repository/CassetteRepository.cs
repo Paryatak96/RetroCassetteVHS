@@ -51,10 +51,10 @@ namespace RetroCassetteVHS.Infrastructure.Repository
             _context.Entry(cassette).Property("Availability").IsModified = true;
             _context.Entry(cassette).Property("Description").IsModified = true;
             _context.Entry(cassette).Property("Language").IsModified = true;
-            _context.Entry(cassette).Property("Quantity").IsModified = true;
-            _context.Entry(cassette).Property("Genre").IsModified = true;
             _context.Entry(cassette).Property("CassettePhoto").IsModified = true;
             _context.SaveChanges();
         }
+
+        public void UpdateCas(Cassette cas) { }
     }
 }
