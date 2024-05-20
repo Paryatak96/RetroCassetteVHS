@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RetroCassetteVHS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .universal-container {
+            background-color: #34495e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1, h2, h3 {
+            color: #ffd700;
+        }
+
+        .form-floating {
+            margin-bottom: 15px;
+        }
+
+            .form-floating label {
+                color: #ecf0f1;
+            }
+
+        .form-control {
+            background-color: #3b5998;
+            color: #ecf0f1;
+            border: none;
+        }
+
+            .form-control:focus {
+                background-color: #3b5998;
+                color: #ecf0f1;
+                border-color: #f1c40f;
+                box-shadow: none;
+            }
+
+        .btn-primary {
+            background-color: #2980b9;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background-color: #1abc9c;
+            }
+
+        .text-danger {
+            color: #e74c3c !important;
+        }
+
+        a {
+            color: #f1c40f;
+        }
+
+            a:hover {
+                color: #d4ac0d;
+            }
+
+        .form-check-input {
+            background-color: #3b5998;
+            border-color: #f1c40f;
+        }
+    </style>
+</head>
+<body>
+    <div class="universal-container">
+        @RenderBody()
+    </div>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

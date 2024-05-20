@@ -12,8 +12,8 @@ using RetroCassetteVHS.Infrastructure;
 namespace RetroCassetteVHS.Infrastructure.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240512001524_AddRentalTable")]
-    partial class AddRentalTable
+    [Migration("20240519212443_AddRentalPrice")]
+    partial class AddRentalPrice
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -266,6 +266,9 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
 
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("RentalPrice")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

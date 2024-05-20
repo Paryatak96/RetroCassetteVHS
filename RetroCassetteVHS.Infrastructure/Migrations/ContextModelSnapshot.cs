@@ -265,6 +265,9 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("RentalPrice")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Cassettes");

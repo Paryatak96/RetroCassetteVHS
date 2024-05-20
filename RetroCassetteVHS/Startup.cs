@@ -13,12 +13,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using RetroCassetteVHS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RetroCassetteVHS.Infrastructure;
+using SendGrid;
+using RetroCassetteVHS.Services;
 
 namespace RetroCassetteVHS
 {
@@ -60,12 +61,13 @@ namespace RetroCassetteVHS
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-
             services.AddControllersWithViews().AddFluentValidation(fv => fv.AutomaticValidationEnabled = false);
 
             services.AddRazorPages();
 
             services.AddApplication();
+
+            services.AddScoped<EmailSender, EmailSender>();
 
             services.AddInfrastructure();
 
@@ -114,5 +116,9 @@ namespace RetroCassetteVHS
 
             CreateRoles(serviceProvider).GetAwaiter().GetResult();
         }
+    }
+    public class SendGridSettings
+    {
+        public string ApiKey { get; set; }
     }
 }

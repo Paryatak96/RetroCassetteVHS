@@ -1,0 +1,71 @@
+﻿@model string
+
+@{
+    Layout = "~/Views/Shared/_UniversalLayout.cshtml";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Error</title>
+    <link rel="stylesheet" type="text/css" href="~/css/site.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #f0f0f0;
+        }
+
+        .error-container {
+            background-color: #34495e;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .error-title {
+            font-size: 24px;
+            color: #ffd700;
+            margin-bottom: 1em;
+        }
+
+        .error-message {
+            font-size: 18px;
+            color: #ecf0f1;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 1em;
+            padding: 0.5em 1em;
+            color: white;
+            background-color: #2980b9;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .back-button:hover {
+                background-color: #1abc9c;
+            }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-title">Error</div>
+        <div class="error-message">@Model</div>
+        <a href="javascript:history.back()" class="back-button">Go Back</a>
+    </div>
+</body>
+</html>

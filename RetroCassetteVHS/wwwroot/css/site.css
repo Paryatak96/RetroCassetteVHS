@@ -16,3 +16,12 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.navbar-nav.ms-auto {
+    margin-left: auto;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    align-items: center;
+    display: table-caption;
+}

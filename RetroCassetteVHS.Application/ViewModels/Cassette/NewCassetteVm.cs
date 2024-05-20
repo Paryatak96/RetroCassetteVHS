@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using RetroCassetteVHS.Application.Mapping;
 using RetroCassetteVHS.Domain.Model;
 using System;
@@ -23,6 +24,7 @@ namespace RetroCassetteVHS.Application.ViewModels.Cassette
         public string Description { get; set; }
         public string Language { get; set; }
         public string CassettePhoto { get; set; }
+        public IFormFile CassettePhotoFile { get; set; }
 
         public void Mapping(Profile profile)
         {

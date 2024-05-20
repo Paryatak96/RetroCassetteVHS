@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http;
 using RetroCassetteVHS.Application.Interfaces;
 using RetroCassetteVHS.Application.ViewModels.Cassette;
 using RetroCassetteVHS.Domain.Interface;
@@ -22,8 +23,21 @@ namespace RetroCassetteVHS.Application.Services
             _mapper = mapper;
         }
 
-        public int AddCassette(NewCassetteVm cassette)
+        public async Task<int> AddCassette(NewCassetteVm cassette, IFormFile cassettePhotoFile, string cassettePhotoPath)
         {
+            if (cassettePhotoFile != null)
+            {
+                var fileName = Path.GetFileName(cassettePhotoFile.FileName);
+                var filePath = Path.Combine("wwwroot/images", fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await cassettePhotoFile.CopyToAsync(fileStream);
+                }
+
+                cassette.CassettePhoto = "/images/" + fileName;
+            }
+
             var cas = _mapper.Map<Cassette>(cassette);
             var id = _cassetteRepo.AddCassette(cas);
             return id;

@@ -15,6 +15,13 @@ using Microsoft.AspNetCore.Identity;
 using RetroCassetteVHS.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using System.Net.Mail;
+using System.Net;
+using SendGrid.Helpers.Mail;
+using SendGrid;
+using RetroCassetteVHS.Services;
+using RetroCassetteVHS.Application.Services;
+
 
 
 
@@ -26,13 +33,15 @@ namespace RetroCassetteVHS.Controllers
         private readonly Context _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly EmailSender _emailSender;
 
-        public CassetteController(ICassetteService casService, Context context, UserManager<IdentityUser> userManager, IMapper mapper)
+        public CassetteController(ICassetteService casService, Context context, UserManager<IdentityUser> userManager, IMapper mapper, EmailSender emailSender)
         {
             _casService = casService;
             _context = context;
             _userManager = userManager;
             _mapper = mapper;
+            _emailSender = emailSender;
         }
 
         [HttpGet]
@@ -65,13 +74,20 @@ namespace RetroCassetteVHS.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCassette(NewCassetteVm model)
+        public async Task<IActionResult> AddCassette(NewCassetteVm cassette)
         {
-            var id = _casService.AddCassette(model);
-            return RedirectToAction("Index");
+            if (cassette.CassettePhotoFile == null)
+            {
+                ModelState.AddModelError("CassettePhotoFile", "The Cassette Photo is required.");
+                return View(cassette);
+            }
+
+            await _casService.AddCassette(cassette, cassette.CassettePhotoFile, cassette.CassettePhoto);
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult EditCassette(int id)
         {
             var cassette = _casService.GetCassetteForEdit(id);
@@ -85,6 +101,7 @@ namespace RetroCassetteVHS.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteCassette(int id)
         {
             _casService.DeleteCassette(id);
@@ -100,12 +117,10 @@ namespace RetroCassetteVHS.Controllers
                 return NotFound();
             }
 
-            // Pobierz wszystkie wypożyczenia tej kasety, które jeszcze się nie zakończyły
             var rentals = await _context.Rentals
                 .Where(r => r.CassetteId == id && r.ActualReturnDate == null)
                 .ToListAsync();
 
-            // Oblicz najbliższą datę dostępności
             var nextAvailableDate = rentals
                 .OrderBy(r => r.ExpectedReturnDate)
                 .LastOrDefault()?.ExpectedReturnDate;
@@ -116,20 +131,34 @@ namespace RetroCassetteVHS.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
         public async Task<IActionResult> RentCassette(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return View("SpecifyError", "User doesn't exist");
+            }
             var rentals = _context.Rentals.Where(r => r.UserId == userId && r.ActualReturnDate == null).ToList();
             if (rentals.Count >= 3)
             {
-                return View("Error", "You cannot rent more than 3 cassettes at a time.");
+                return View("SpecifyError", "You cannot rent more than 3 cassettes at a time.");
             }
 
             var cassette = await _context.Cassettes.FindAsync(id);
             if (cassette == null || !cassette.Availability)
             {
-                return View("Error", "Cassette not available.");
+                return View("SpecifyError", "Cassette not available.");
             }
+
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            if (wallet == null || wallet.Balance < cassette.RentalPrice)
+            {
+                return View("SpecifyError", "Insufficient funds in wallet.");
+            }
+
+            wallet.Balance -= cassette.RentalPrice;
+            _context.Wallets.Update(wallet);
 
             var rental = new Rental
             {
@@ -143,7 +172,35 @@ namespace RetroCassetteVHS.Controllers
             _context.Rentals.Add(rental);
             _context.SaveChanges();
 
-            return RedirectToAction("Index"); // Redirect to a relevant view
+            await SendInvoice(userId, cassette);
+
+            return RedirectToAction("Index");
+        }
+
+        private async Task SendInvoice(string userId, Cassette cassette)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var email = user.Email;
+            var subject = "Your Rental Invoice";
+            var body = $@"
+            <h1>Invoice for Your Rental</h1>
+            <p>Dear {user.UserName},</p>
+            <p>Thank you for renting from RetroCassetteVHS. Here are the details of your rental:</p>
+            <ul>
+                <li>Title: {cassette.MovieTitle}</li>
+                <li>Rental Date: {DateTime.Now.ToShortDateString()}</li>
+                <li>Return Date: {DateTime.Now.AddDays(14).ToShortDateString()}</li>
+                <li>Price: {cassette.RentalPrice:C}</li>
+            </ul>
+            <p>Thank you for your business!</p>
+            <p>RetroCassetteVHS</p>";
+
+            await _emailSender.SendEmail(subject, email, user.UserName, body);
         }
     }
 }

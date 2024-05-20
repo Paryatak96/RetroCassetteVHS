@@ -20,7 +20,6 @@ namespace RetroCassetteVHS.Controllers
             _userManager = userManager;
         }
 
-        // Metoda do wyświetlania salda dla zalogowanego użytkownika
         public async Task<IActionResult> Balance()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -104,7 +103,6 @@ namespace RetroCassetteVHS.Controllers
             return RedirectToAction("UserWallet", new { userId = userId });
         }
 
-        // Metoda do wyświetlania portfela użytkownika dla admina
         public async Task<IActionResult> UserWallet(string userId)
         {
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);

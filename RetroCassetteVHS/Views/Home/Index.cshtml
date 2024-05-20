@@ -1,8 +1,98 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@{
     ViewData["Title"] = "Home Page";
+    decimal balance = ViewBag.Balance;
+    var isAdmin = User.IsInRole("Admin");
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - RetroCassette</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .header {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .balance {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #f0f0f0;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #2980b9;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+            color: #343a40;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+        }
+
+        .btn-primary:hover {
+            background-color: #1abc9c;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-success:hover {
+            background-color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Welcome to RetroCassette</h1>
+        @{
+            if (SignInManager.IsSignedIn(User))
+            {
+                <p class="balance">Your current balance is: <strong>@balance.ToString("C")</strong></p>
+            }
+        }
+        <a href="@Url.Action("Index", "Cassette")" class="btn btn-primary">View Movies</a>
+
+        @if (isAdmin)
+        {
+            <a href="@Url.Action("FindUserByEmail", "Wallet")" class="btn btn-warning">Edit User Balance</a>
+            <a href="@Url.Action("AddCassette", "Cassette")" class="btn btn-success">Add Movie</a>
+        }
+    </div>
+</body>
+</html>

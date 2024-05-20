@@ -12,7 +12,7 @@ using RetroCassetteVHS.Infrastructure;
 namespace RetroCassetteVHS.Infrastructure.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240416104117_InitialMigration")]
+    [Migration("20240519203738_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -272,6 +272,61 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                     b.ToTable("Cassettes");
                 });
 
+            modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Rental", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("ActualReturnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CassetteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ExpectedReturnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("RentalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CassetteId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Rentals");
+                });
+
+            modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Wallet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Wallets");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -321,6 +376,36 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Rental", b =>
+                {
+                    b.HasOne("RetroCassetteVHS.Domain.Model.Cassette", "Cassette")
+                        .WithMany()
+                        .HasForeignKey("CassetteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cassette");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RetroCassetteVHS.Domain.Model.Wallet", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

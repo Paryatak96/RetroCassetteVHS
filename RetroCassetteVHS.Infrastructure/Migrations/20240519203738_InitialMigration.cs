@@ -175,6 +175,55 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Wallets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Balance = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wallets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Wallets_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rentals",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CassetteId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RentalDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpectedReturnDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ActualReturnDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rentals", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rentals_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rentals_Cassettes_CassetteId",
+                        column: x => x.CassetteId,
+                        principalTable: "Cassettes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -213,6 +262,21 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rentals_CassetteId",
+                table: "Rentals",
+                column: "CassetteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rentals_UserId",
+                table: "Rentals",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wallets_UserId",
+                table: "Wallets",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -233,10 +297,16 @@ namespace RetroCassetteVHS.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Cassettes");
+                name: "Rentals");
+
+            migrationBuilder.DropTable(
+                name: "Wallets");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Cassettes");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

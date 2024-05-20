@@ -4,79 +4,139 @@
     ViewData["Title"] = "Lista Filmów VHS";
 }
 
-<h1>Lista Filmów VHS</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - RetroCassetteVHS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-<form asp-action="Index" asp-controller="Cassette" method="post">
-    <div class="input-group">
-        <input type="text" asp-for="SearchString" class="form-control rounded" placeholder="Type Title or Director" aria-label="Search" aria-describedby="search-addon" />
-        <button type="submit" class="btn btn-outline-primary">Search</button>
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .table {
+            background-color: #34495e;
+            color: #ecf0f1;
+        }
+
+            .table th {
+                background-color: #2c3e50;
+                color: #f0f0f0;
+            }
+
+            .table td {
+                background-color: #3b5998;
+                color: #ecf0f1;
+            }
+
+            .table a {
+                color: #1abc9c;
+            }
+
+                .table a:hover {
+                    color: #16a085;
+                }
+
+        .page-link {
+            color: #f0f0f0;
+            background-color: #2c3e50;
+            border: 1px solid #34495e;
+            margin: 0 2px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+            .page-link:hover {
+                background-color: #1abc9c;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lista Filmów VHS</h1>
+
+        <form asp-action="Index" asp-controller="Cassette" method="post">
+            <div class="input-group">
+                <input type="text" asp-for="SearchString" class="form-control rounded" placeholder="Type Title or Director" aria-label="Search" aria-describedby="search-addon" />
+                <button type="submit" class="btn btn-outline-primary">Search</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Title</th>
+                        <th>Available</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cassette in Model.Cassettes)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(cassette.CassettePhoto))
+                                {
+                                    <img src="@cassette.CassettePhoto" alt="@cassette.MovieTitle" width="100" />
+                                }
+                            </td>
+                            <td>@cassette.MovieTitle</td>
+                            <td>@(cassette.Availability ? "Yes" : "No")</td>
+                            <td>
+                                <a href="@Url.Action("EditCassette", new { id = cassette.Id })" class="btn btn-primary">Edit</a>
+                                <a href="@Url.Action("CassetteDetails", new { id = cassette.Id })" class="btn btn-info">Details</a>
+                                <a href="@Url.Action("DeleteCassette", new { id = cassette.Id })" class="btn btn-danger">Delete</a>
+                                <a href="@Url.Action("RentCassette", new { id = cassette.Id })" class="btn btn-success">Rent</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="d-flex justify-content-center">
+                <ul class="pagination">
+                    @for (int i = 1; i <= Math.Ceiling(Model.Count / (double)Model.PageSize); i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="javascript:PagerClick(@i)">@i</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <input type="hidden" name="pageNo" id="pageNo" />
+            <input type="hidden" name="pageSize" id="pageSize" value="5" />
+        </form>
     </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tytuł</th>
-                <th>Język</th>
-                <th>Dostępność</th>
-                <th>Akcje</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Cassettes)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => item.Id)</td>
-                    <td>@Html.DisplayFor(modelItem => item.MovieTitle)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Language)</td>
-                    <td>
-                        @if (item.Availability)
-                        {
-                            <text>Dostępna</text>
-                        }
-                        else
-                        {
-                            <text>Niedostępna</text>
-                        }
-                    </td>
-                    <td>
-                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                        @Html.ActionLink("Details", "CassetteDetails", new { id = item.Id }) |
-                        @Html.ActionLink("Delete", "Delete", new { id = item.Id }) |
-                        @Html.ActionLink("Rent", "RentCassette", new { id = item.Id })
-                    </td>
-                </tr>
+    @section Scripts
+    {
+        <script type="text/javascript">
+            function PagerClick(index) {
+                document.getElementById("pageNo").value = index;
+                document.forms[0].submit();
             }
-        </tbody>
-    </table>
-
-    <table>
-        <tr>
-            @for (int i = 1; i <= Math.Ceiling(Model.Count / (double)Model.PageSize); i++)
-            {
-                <td>
-                    @if (i != Model.CurrentPage)
-                    {
-                        <a class="page-link" href="javascript:PagerClick(@i)">@i</a>
-                    }
-                    else
-                    {
-                        <a class="page-link">@i</a>
-                    }
-                </td>
-            }
-        </tr>
-    </table>
-    <input type="hidden" name="pageNo" id="pageNo" />
-    <input type="hidden" name="pageSize" id="pageSize" value="5" />
-</form>
-
-@section Scripts
-{
-    <script type="text/javascript">
-        function PagerClick(index) {
-            document.getElementById("pageNo").value = index;
-            document.forms[0].submit();
-        }
-    </script>
-}
+        </script>
+    }
+</body>
+</html>
