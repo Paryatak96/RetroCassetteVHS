@@ -21,8 +21,8 @@ using SendGrid.Helpers.Mail;
 using SendGrid;
 using RetroCassetteVHS.Services;
 using RetroCassetteVHS.Application.Services;
-
-
+using System.Text.Encodings.Web;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 
 namespace RetroCassetteVHS.Controllers
@@ -30,15 +30,17 @@ namespace RetroCassetteVHS.Controllers
     public class CassetteController : Controller
     {
         private readonly ICassetteService _casService;
-        private readonly Context _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IRentalService _rentalService;
+        private readonly IWalletService _walletService;
         private readonly IMapper _mapper;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly EmailSender _emailSender;
 
-        public CassetteController(ICassetteService casService, Context context, UserManager<IdentityUser> userManager, IMapper mapper, EmailSender emailSender)
+        public CassetteController(ICassetteService casService, IRentalService rentalService, IWalletService walletService, UserManager<IdentityUser> userManager, IMapper mapper, EmailSender emailSender)
         {
             _casService = casService;
-            _context = context;
+            _rentalService = rentalService;
+            _walletService = walletService;
             _userManager = userManager;
             _mapper = mapper;
             _emailSender = emailSender;
@@ -111,15 +113,13 @@ namespace RetroCassetteVHS.Controllers
         [HttpGet]
         public async Task<IActionResult> CassetteDetails(int id)
         {
-            var cassette = await _context.Cassettes.FindAsync(id);
+            var cassette = await _casService.GetCassetteDetails(id);
             if (cassette == null)
             {
                 return NotFound();
             }
 
-            var rentals = await _context.Rentals
-                .Where(r => r.CassetteId == id && r.ActualReturnDate == null)
-                .ToListAsync();
+            var rentals = await _casService.GetActiveRentalsForCassetteAsync(id);
 
             var nextAvailableDate = rentals
                 .OrderBy(r => r.ExpectedReturnDate)
@@ -139,39 +139,36 @@ namespace RetroCassetteVHS.Controllers
             {
                 return View("SpecifyError", "User doesn't exist");
             }
-            var rentals = _context.Rentals.Where(r => r.UserId == userId && r.ActualReturnDate == null).ToList();
+
+            // Sprawdzenie liczby aktywnych wypożyczeń
+            var rentals = await _rentalService.GetUserActiveRentalsAsync(userId);
             if (rentals.Count >= 3)
             {
                 return View("SpecifyError", "You cannot rent more than 3 cassettes at a time.");
             }
 
-            var cassette = await _context.Cassettes.FindAsync(id);
+            // Sprawdzenie dostępności kasety
+            var cassette = await _rentalService.GetCassetteByIdAsync(id);
             if (cassette == null || !cassette.Availability)
             {
                 return View("SpecifyError", "Cassette not available.");
             }
 
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            // Sprawdzenie stanu portfela
+            var wallet = await _walletService.GetUserWalletAsync(userId);
             if (wallet == null || wallet.Balance < cassette.RentalPrice)
             {
                 return View("SpecifyError", "Insufficient funds in wallet.");
             }
 
+            // Aktualizacja portfela
             wallet.Balance -= cassette.RentalPrice;
-            _context.Wallets.Update(wallet);
+            await _walletService.UpdateWalletBalanceAsync(wallet);
 
-            var rental = new Rental
-            {
-                CassetteId = id,
-                UserId = userId,
-                RentalDate = DateTime.Now,
-                ExpectedReturnDate = DateTime.Now.AddDays(14)
-            };
+            // Wypożyczenie kasety
+            await _rentalService.RentCassetteAsync(id, userId);
 
-            cassette.Availability = false;
-            _context.Rentals.Add(rental);
-            _context.SaveChanges();
-
+            // Wysyłanie faktury
             await SendInvoice(userId, cassette);
 
             return RedirectToAction("Index");

@@ -14,6 +14,8 @@ namespace RetroCassetteVHS.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddTransient<ICassetteService, CassetteService>();
+            services.AddTransient<IRentalService, RentalService>();
+            services.AddTransient<IWalletService, WalletService>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             return services;
         }

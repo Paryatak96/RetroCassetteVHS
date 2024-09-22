@@ -87,6 +87,7 @@
                         <th>Photo</th>
                         <th>Title</th>
                         <th>Available</th>
+                        <th>Price</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -102,6 +103,7 @@
                             </td>
                             <td>@cassette.MovieTitle</td>
                             <td>@(cassette.Availability ? "Yes" : "No")</td>
+                            <td>@cassette.RentalPrice.ToString("C")</td>
                             <td>
                                 <a href="@Url.Action("EditCassette", new { id = cassette.Id })" class="btn btn-primary">Edit</a>
                                 <a href="@Url.Action("CassetteDetails", new { id = cassette.Id })" class="btn btn-info">Details</a>

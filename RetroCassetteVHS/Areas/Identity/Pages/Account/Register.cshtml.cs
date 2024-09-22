@@ -18,8 +18,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using RetroCassetteVHS.Controllers;
 using RetroCassetteVHS.Domain.Model;
 using RetroCassetteVHS.Infrastructure;
+using RetroCassetteVHS.Services;
 
 namespace RetroCassetteVHS.Areas.Identity.Pages.Account
 {
@@ -32,6 +34,7 @@ namespace RetroCassetteVHS.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly EmailSender _emailSenderNew;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -39,7 +42,8 @@ namespace RetroCassetteVHS.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            Context context)
+            Context context,
+            EmailSender emailSender1)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -48,6 +52,7 @@ namespace RetroCassetteVHS.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _context = context;
+            _emailSenderNew = emailSender1;
         }
 
         /// <summary>
@@ -152,8 +157,7 @@ namespace RetroCassetteVHS.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSenderNew.SendConfirmationEmail(userId, callbackUrl); 
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

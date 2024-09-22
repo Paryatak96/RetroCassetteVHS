@@ -42,6 +42,16 @@ namespace RetroCassetteVHS.Application.Services
             var id = _cassetteRepo.AddCassette(cas);
             return id;
         }
+        
+        public async Task<Cassette> GetCassetteDetails(int id)
+        {
+            return await _cassetteRepo.GetCassetteDetails(id);
+        }
+
+        public async Task<List<Rental>> GetActiveRentalsForCassetteAsync(int cassetteId)
+        {
+            return await _cassetteRepo.GetRentalsForCassetteAsync(cassetteId);
+        }
 
         public ListCassetteForListVm GetAllCassetteForList(int pageSize, int pageNo, string searchString)
         {
@@ -61,16 +71,9 @@ namespace RetroCassetteVHS.Application.Services
             return cassetteList;
         }
 
-        public CassetteDetailsVm GetCassetteDetails(int cassetteId)
-        {
-            var cassette = _cassetteRepo.GetCassette(cassetteId);
-            var cassetteVm = _mapper.Map<CassetteDetailsVm>(cassette);
-            return cassetteVm;
-        }
-
         public NewCassetteVm GetCassetteForEdit(int id)
         {
-            var cassette = _cassetteRepo.GetCassette(id);
+            var cassette = _cassetteRepo.GetCassetteDetails(id);
             var cassetteVm = _mapper.Map<NewCassetteVm>(cassette);
             return cassetteVm;
         }

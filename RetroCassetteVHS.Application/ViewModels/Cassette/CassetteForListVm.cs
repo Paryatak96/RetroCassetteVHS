@@ -15,6 +15,7 @@ namespace RetroCassetteVHS.Application.ViewModels.Cassette
         public string Language { get; set; }
         public string CassettePhoto { get; set; }
         public bool Availability { get; set; }
+        public int RentalPrice { get; set; }
 
 
         public void Mapping(Profile profile)

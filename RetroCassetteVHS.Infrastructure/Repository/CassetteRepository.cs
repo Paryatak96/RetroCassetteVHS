@@ -1,4 +1,5 @@
-﻿using RetroCassetteVHS.Domain.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using RetroCassetteVHS.Domain.Interface;
 using RetroCassetteVHS.Domain.Model;
 using RetroCassetteVHS.Infrastructure;
 using System;
@@ -22,9 +23,15 @@ namespace RetroCassetteVHS.Infrastructure.Repository
             return _context.Cassettes;
         }
 
-        public Cassette GetCassette(int cassetteId)
+        public async Task <Cassette> GetCassetteDetails(int cassetteId)
         {
             return _context.Cassettes.FirstOrDefault(p => p.Id == cassetteId);
+        }
+        public async Task<List<Rental>> GetRentalsForCassetteAsync(int cassetteId)
+        {
+            return await _context.Rentals
+                .Where(r => r.CassetteId == cassetteId && r.ActualReturnDate == null)
+                .ToListAsync();
         }
 
         public void DeleteCassette(int id)
@@ -56,5 +63,7 @@ namespace RetroCassetteVHS.Infrastructure.Repository
         }
 
         public void UpdateCas(Cassette cas) { }
+
+
     }
 }

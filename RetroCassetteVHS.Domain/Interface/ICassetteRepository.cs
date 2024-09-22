@@ -15,7 +15,9 @@ namespace RetroCassetteVHS.Domain.Interface
 
         IQueryable<Cassette> GetAllCassettes();
 
-        Cassette GetCassette(int cassetteId);
+        Task <Cassette> GetCassetteDetails(int cassetteId);
+
+        Task<List<Rental>> GetRentalsForCassetteAsync(int cassetteId);
 
         void UpdateCassette(Cassette cassette);
     }

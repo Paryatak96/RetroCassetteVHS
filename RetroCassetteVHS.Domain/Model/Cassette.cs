@@ -20,5 +20,7 @@ namespace RetroCassetteVHS.Domain.Model
         public string Language { get; set; }
         public string CassettePhoto { get; set; }
         public DateTime ReleaseDate { get; set; }
+
+        public virtual ICollection<Rental> Rentals { get; set; }
     }
 }

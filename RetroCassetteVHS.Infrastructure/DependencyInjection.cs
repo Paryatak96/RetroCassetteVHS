@@ -12,6 +12,8 @@ namespace RetroCassette.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddTransient<ICassetteRepository, CassetteRepository>();
+            services.AddTransient<IWalletRepository, WalletRepository>();
+            services.AddTransient<IRentalRepository, RentalRepository>();
             return services;
         }
     }
