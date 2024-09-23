@@ -21,8 +21,6 @@ namespace RetroCassetteVHS.Controllers
             _userManager = userManager;
         }
 
-
-
         public IActionResult Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

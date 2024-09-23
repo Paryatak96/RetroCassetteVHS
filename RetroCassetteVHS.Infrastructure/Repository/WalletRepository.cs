@@ -18,13 +18,13 @@ namespace RetroCassetteVHS.Infrastructure.Repository
             _context = context;
         }
 
-        // Pobranie portfela użytkownika na podstawie identyfikatora użytkownika
+
         public async Task<Wallet> GetByUserIdAsync(string userId)
         {
             return await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
         }
 
-        // Aktualizacja portfela użytkownika
+
         public async Task UpdateAsync(Wallet wallet)
         {
             _context.Wallets.Update(wallet);

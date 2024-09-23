@@ -68,13 +68,6 @@ namespace RetroCassetteVHS.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public IActionResult AddCassette()
-        {
-            return View(new NewCassetteVm());
-        }
-
         [HttpPost]
         public async Task<IActionResult> AddCassette(NewCassetteVm cassette)
         {
@@ -88,25 +81,10 @@ namespace RetroCassetteVHS.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public IActionResult EditCassette(int id)
-        {
-            var cassette = _casService.GetCassetteForEdit(id);
-            return View(cassette);
-        }
-
         [HttpPost]
         public IActionResult EditCassette(NewCassetteVm model)
         {
             _casService.UpdateCassette(model);
-            return RedirectToAction("Index");
-        }
-
-        [Authorize(Roles = "Admin")]
-        public IActionResult DeleteCassette(int id)
-        {
-            _casService.DeleteCassette(id);
             return RedirectToAction("Index");
         }
 
@@ -154,50 +132,69 @@ namespace RetroCassetteVHS.Controllers
                 return View("SpecifyError", "Cassette not available.");
             }
 
-            // Sprawdzenie stanu portfela
             var wallet = await _walletService.GetUserWalletAsync(userId);
             if (wallet == null || wallet.Balance < cassette.RentalPrice)
             {
                 return View("SpecifyError", "Insufficient funds in wallet.");
             }
 
-            // Aktualizacja portfela
             wallet.Balance -= cassette.RentalPrice;
-            await _walletService.UpdateWalletBalanceAsync(wallet);
 
-            // Wypożyczenie kasety
+            await _walletService.UpdateWalletBalanceAsync(userId, wallet.Balance);
+
             await _rentalService.RentCassetteAsync(id, userId);
 
-            // Wysyłanie faktury
-            //await SendInvoice(userId, cassette);
+            await SendInvoice(userId, cassette);
 
             return RedirectToAction("Index");
         }
 
-        //private async Task SendInvoice(string userId, Cassette cassette)
-        //{
-        //    var user = await _userManager.FindByIdAsync(userId);
-        //    if (user == null)
-        //    {
-        //        throw new Exception("User not found");
-        //    }
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteCassette(int id)
+        {
+            _casService.DeleteCassette(id);
+            return RedirectToAction("Index");
+        }
 
-        //    var email = user.Email;
-        //    var subject = "Your Rental Invoice";
-        //    var body = $@"
-        //    <h1>Invoice for Your Rental</h1>
-        //    <p>Dear {user.UserName},</p>
-        //    <p>Thank you for renting from RetroCassetteVHS. Here are the details of your rental:</p>
-        //    <ul>
-        //        <li>Title: {cassette.MovieTitle}</li>
-        //        <li>Rental Date: {DateTime.Now.ToShortDateString()}</li>
-        //        <li>Return Date: {DateTime.Now.AddDays(14).ToShortDateString()}</li>
-        //        <li>Price: {cassette.RentalPrice:C}</li>
-        //    </ul>
-        //    <p>Thank you for your business!</p>
-        //    <p>RetroCassetteVHS</p>";
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult EditCassette(int id)
+        {
+            var cassette = _casService.GetCassetteForEdit(id);
+            return View(cassette);
+        }
 
-        //    await _emailSender.SendEmail(subject, email, user.UserName, body);
-        //}
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult AddCassette()
+        {
+            return View(new NewCassetteVm());
+        }
+
+        private async Task SendInvoice(string userId, Cassette cassette)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var email = user.Email;
+            var subject = "Your Rental Invoice";
+            var body = $@"
+            <h1>Invoice for Your Rental</h1>
+            <p>Dear {user.UserName},</p>
+            <p>Thank you for renting from RetroCassetteVHS. Here are the details of your rental:</p>
+            <ul>
+                <li>Title: {cassette.MovieTitle}</li>
+                <li>Rental Date: {DateTime.Now.ToShortDateString()}</li>
+                <li>Return Date: {DateTime.Now.AddDays(14).ToShortDateString()}</li>
+                <li>Price: {cassette.RentalPrice:C}</li>
+            </ul>
+            <p>Thank you for your business!</p>
+            <p>RetroCassetteVHS</p>";
+
+            await _emailSender.SendEmail(subject, email, user.UserName, body);
+        }
     }
 }

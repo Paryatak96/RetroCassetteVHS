@@ -10,6 +10,6 @@ namespace RetroCassetteVHS.Application.Interfaces
     public interface IWalletService
     {
         Task<Wallet> GetUserWalletAsync(string userId);
-        Task UpdateWalletBalanceAsync(Wallet wallet);
+        Task UpdateWalletBalanceAsync(string userId, decimal balance);
     }
 }

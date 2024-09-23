@@ -18,15 +18,25 @@ namespace RetroCassetteVHS.Application.Services
             _walletRepo = walletRepo;
         }
 
-        // Pobranie portfela użytkownika na podstawie identyfikatora użytkownika
         public async Task<Wallet> GetUserWalletAsync(string userId)
         {
             return await _walletRepo.GetByUserIdAsync(userId);
         }
 
-        // Aktualizacja salda w portfelu użytkownika
-        public async Task UpdateWalletBalanceAsync(Wallet wallet)
+        public async Task UpdateWalletBalanceAsync(string userId, decimal balance)
         {
+            var wallet = await _walletRepo.GetByUserIdAsync(userId);
+            if (wallet == null)
+            {
+                throw new Exception("Wallet not found");
+            }
+
+            if (balance < 0)
+            {
+                throw new Exception("Balance cannot be negative.");
+            }
+
+            wallet.Balance = balance;
             await _walletRepo.UpdateAsync(wallet);
         }
     }

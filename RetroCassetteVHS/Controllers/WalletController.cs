@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RetroCassetteVHS.Application.Interfaces;
 using RetroCassetteVHS.Application.ViewModels.Wallet;
 using RetroCassetteVHS.Infrastructure;
 using System.Security.Claims;
@@ -11,26 +12,39 @@ namespace RetroCassetteVHS.Controllers
 {
     public class WalletController : Controller
     {
-        private readonly Context _context;
+        private readonly IWalletService _walletService;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public WalletController(Context context, UserManager<IdentityUser> userManager)
+        public WalletController(IWalletService walletService, UserManager<IdentityUser> userManager)
         {
-            _context = context;
+            _walletService = walletService;
             _userManager = userManager;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Balance()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            var wallet = await _walletService.GetUserWalletAsync(userId);
             return View(wallet);
         }
 
         [HttpGet]
-        public IActionResult FindUserByEmail()
+        public async Task<IActionResult> FindUserByEmail()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UserWallet(string userId)
+        {
+            var wallet = await _walletService.GetUserWalletAsync(userId);
+            if (wallet == null)
+            {
+                return NotFound();
+            }
+
+            return View(wallet);
         }
 
         [HttpPost]
@@ -41,14 +55,14 @@ namespace RetroCassetteVHS.Controllers
             if (user == null)
             {
                 ViewBag.ErrorMessage = "Nie znaleziono użytkownika o podanym adresie e-mail.";
-                return View("NotFound"); // Upewnij się, że taki widok istnieje.
+                return View("NotFound");
             }
 
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == user.Id);
+            var wallet = await _walletService.GetUserWalletAsync(user.Id);
             if (wallet == null)
             {
                 ViewBag.ErrorMessage = "Użytkownik nie posiada portfela.";
-                return View("NotFound"); // Upewnij się, że taki widok istnieje.
+                return View("NotFound");
             }
 
             return RedirectToAction("EditUserBalance", new { userId = user.Id });
@@ -58,7 +72,7 @@ namespace RetroCassetteVHS.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> EditUserBalance(string userId)
         {
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+            var wallet = await _walletService.GetUserWalletAsync(userId);
             if (wallet == null)
             {
                 return NotFound();
@@ -90,28 +104,17 @@ namespace RetroCassetteVHS.Controllers
                 return View();
             }
 
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
-            if (wallet == null)
+            try
             {
-                return NotFound();
+                await _walletService.UpdateWalletBalanceAsync(userId, Balance);
             }
 
-            wallet.Balance = Balance;
-            _context.Wallets.Update(wallet);
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                return View("Error", new { message = ex.Message });
+            }
 
             return RedirectToAction("UserWallet", new { userId = userId });
-        }
-
-        public async Task<IActionResult> UserWallet(string userId)
-        {
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
-            if (wallet == null)
-            {
-                return NotFound();
-            }
-
-            return View(wallet);
         }
     }
 }
