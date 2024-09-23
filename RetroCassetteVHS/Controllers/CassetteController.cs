@@ -169,35 +169,35 @@ namespace RetroCassetteVHS.Controllers
             await _rentalService.RentCassetteAsync(id, userId);
 
             // Wysyłanie faktury
-            await SendInvoice(userId, cassette);
+            //await SendInvoice(userId, cassette);
 
             return RedirectToAction("Index");
         }
 
-        private async Task SendInvoice(string userId, Cassette cassette)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
+        //private async Task SendInvoice(string userId, Cassette cassette)
+        //{
+        //    var user = await _userManager.FindByIdAsync(userId);
+        //    if (user == null)
+        //    {
+        //        throw new Exception("User not found");
+        //    }
 
-            var email = user.Email;
-            var subject = "Your Rental Invoice";
-            var body = $@"
-            <h1>Invoice for Your Rental</h1>
-            <p>Dear {user.UserName},</p>
-            <p>Thank you for renting from RetroCassetteVHS. Here are the details of your rental:</p>
-            <ul>
-                <li>Title: {cassette.MovieTitle}</li>
-                <li>Rental Date: {DateTime.Now.ToShortDateString()}</li>
-                <li>Return Date: {DateTime.Now.AddDays(14).ToShortDateString()}</li>
-                <li>Price: {cassette.RentalPrice:C}</li>
-            </ul>
-            <p>Thank you for your business!</p>
-            <p>RetroCassetteVHS</p>";
+        //    var email = user.Email;
+        //    var subject = "Your Rental Invoice";
+        //    var body = $@"
+        //    <h1>Invoice for Your Rental</h1>
+        //    <p>Dear {user.UserName},</p>
+        //    <p>Thank you for renting from RetroCassetteVHS. Here are the details of your rental:</p>
+        //    <ul>
+        //        <li>Title: {cassette.MovieTitle}</li>
+        //        <li>Rental Date: {DateTime.Now.ToShortDateString()}</li>
+        //        <li>Return Date: {DateTime.Now.AddDays(14).ToShortDateString()}</li>
+        //        <li>Price: {cassette.RentalPrice:C}</li>
+        //    </ul>
+        //    <p>Thank you for your business!</p>
+        //    <p>RetroCassetteVHS</p>";
 
-            await _emailSender.SendEmail(subject, email, user.UserName, body);
-        }
+        //    await _emailSender.SendEmail(subject, email, user.UserName, body);
+        //}
     }
 }

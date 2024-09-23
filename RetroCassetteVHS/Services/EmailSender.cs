@@ -19,7 +19,7 @@ namespace RetroCassetteVHS.Services
         }
         public async Task SendEmail(string subject, string toEmail, string userName, string message)
         {
-            var apiKey = "***REMOVED***";
+            var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
             var client = new SendGridClient(apiKey);
             var from = new EmailAddress("retrocassette@onet.pl", "Retro Cassette");
             var to = new EmailAddress(toEmail, "Example User");
