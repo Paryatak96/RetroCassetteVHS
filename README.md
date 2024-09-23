@@ -23,8 +23,13 @@ Features:
 Technology Stack:
 
 Backend: ASP.NET Core
+
 Frontend: Razor Pages, HTML, CSS
+
 Database: Entity Framework Core (SQL Server)
+
 Authentication: ASP.NET Identity
+
 Email Service: SendGrid API
+
 Design Pattern: Repository and Service pattern for data access and business logic separation.
