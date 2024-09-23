@@ -4,6 +4,7 @@ RetroCassetteVHS is a web application designed to manage VHS cassette rentals. I
 
 
 
+
 Features:
 
 -User Registration and Login: Users can register, log in, and manage their accounts.
@@ -17,6 +18,7 @@ Features:
 -Admin Panel: Administrators can manage users, view their wallet balances, and modify user details.
 
 -SendGrid Email Integration: Confirmation emails and notifications are sent using SendGrid.
+
 
 
 
